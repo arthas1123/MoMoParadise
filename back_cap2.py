@@ -25,8 +25,8 @@ def FindWindow_bySearch(pattern):
 def getWindow_W_H(hwnd):
     # 取得目標視窗的大小
     left, top, right, bot = win32gui.GetWindowRect(hwnd)
-    width = right - left - 15
-    height = bot - top - 11
+    width = right - left + 280
+    height = bot - top + 150
     return (left, top, width, height)
  
 def getWindow_Img(hwnd):
