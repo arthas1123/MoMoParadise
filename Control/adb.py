@@ -24,8 +24,11 @@ class ADB:
 
     def Keep_Game_ScreenHot_fn(self,Emu_Index,file_name):
         self.Hwnd = self.Get_Self_Hawd(Emu_Index)
+    
         while 1:
-            self.window_capture(hwnd=self.Hwnd,filename=file_name)
+            
+            self.getWindow_Img(hwnd=787130,filename=file_name)
+            #self.getWindow_Img(hwnd=self.Hwnd,filename=file_name)
             time.sleep(1)
 
     def Get_Self_Hawd(self,Index_Num):
@@ -69,8 +72,8 @@ class ADB:
     def getWindow_W_H(self,hwnd):
     # 取得目標視窗的大小
         left, top, right, bot = win32gui.GetWindowRect(hwnd)
-        width = right - left + 280
-        height = bot - top + 150
+        width = right - left #+ 280
+        height = bot - top #+ 150
         return (left, top, width, height)
     
     def getWindow_Img(self,hwnd,filename):
@@ -171,11 +174,15 @@ class ADB:
 
 if __name__ == '__main__':
     obj = ADB(Device_Name="emulator-5554",Screen_Size=[1280,720])
+    #print(obj.Hwnd)
     #print(obj.Get_Self_Hawd(0))
     # obj.Touch(573,460)
-    # hawd = obj.Get_Self_Hawd(0)
-    obj.getWindow_Img(329584,'test3.jpg')
-    # print(hawd)
+    #hawd = obj.Get_Self_Hawd(0)
+    
+    
+    #print(hawd)
+    #obj.getWindow_Img(787130,'test3.jpg')
+    obj.Keep_Game_ScreenHot(0,"test4.png")
     # obj.window_capture(hawd,'test.png')
     # obj.Drag(1164,467,1164,400,1164,370)
     # obj.LD_Call()

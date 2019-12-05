@@ -3,10 +3,11 @@ from Control import  LineageM
 
 class Main():
     def __init__(self):
-        self.LM = LineageM.LM(Device_Name="127.0.0.1:5555")
+        self.LM = LineageM.LM(Device_Name="emulator-5554",Sample_Path="./Data/Sample_img")
 
 
     def start(self):
+        LineageM.LM.Click_System_Btn('Item_Box')
         pass
 
 
@@ -14,4 +15,4 @@ class Main():
 
 if __name__ == "__main__":
     obj = Main()
-    # obj.start()
+    obj.LM.Click_System_Btn('Item_Box')

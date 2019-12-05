@@ -1,4 +1,5 @@
-from Module import  adb
+from Module import adb
+#import  adb
 import time
 import os
 from PIL import Image
@@ -11,7 +12,7 @@ class LM:
     def __init__(self,Device_Name,Sample_Path):
        self.ADB = adb.ADB(Device_Name=Device_Name,Screen_Size=[1280,720])
        #啟動截圖線程
-       # self.Game_Screen = self.ADB.ScreenHot
+       #self.Game_Screen = self.ADB.ScreenHot
        self.Sample_Image = dict()
        #導入範例檔案
        self.Import_Sample_Image(Sample_Path)
@@ -179,16 +180,16 @@ class LM:
 
 
 if __name__ == '__main__':
-    obj = LM(Device_Name="127.0.0.1:5555",Sample_Path="../Data/Sample_img")
+    obj = LM(Device_Name="emulator-5554",Sample_Path="./Data/Sample_img")
 
-    # while 1:
-    #     Has_stat =   obj.Check_Red_Water_Exist()
-    #     if Has_stat == 1:
-    #         print("有藥水")
-    #     else:
-    #         print("沒藥水")
-    #         obj.Click_System_Btn("F8")
-    #     time.sleep(1)
+    #while 1:
+    #    Has_stat =   obj.Check_Red_Water_Exist()
+    #    if Has_stat == 1:
+    #        print("有藥水")
+    #    else:
+    #        print("沒藥水")
+    #        obj.Click_System_Btn("F8")
+    #    time.sleep(1)
 
     # obj.Click_System_Btn("Menu_Sign_in")
     # rs = obj.Check_And_Take_Sign_MailBox()
@@ -205,9 +206,9 @@ if __name__ == '__main__':
 
     # obj.Image_Hash(obj.ADB.ScreenHot)
 
-    # obj.Get_Red_Water_Img()
+    #obj.Get_Red_Water_Img()
     #
-    # obj.Click_System_Btn('Item_Box')
+    #obj.Click_System_Btn('Item_Box')
     # time.sleep(0.2)
     # obj.Click_System_Btn('Pick_up')
     # time.sleep(0.2)
