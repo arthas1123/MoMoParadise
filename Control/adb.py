@@ -23,11 +23,11 @@ class ADB:
         th.start()
 
     def Keep_Game_ScreenHot_fn(self,Emu_Index,file_name):
-        self.Hwnd = self.Get_Self_Hawd(Emu_Index)
+        self.Hwnd = int(self.Get_Self_Hawd(Emu_Index))
     
         while 1:
             
-            self.getWindow_Img(hwnd=787130,filename=file_name)
+            self.getWindow_Img(self.Hwnd,filename=file_name)
             #self.getWindow_Img(hwnd=self.Hwnd,filename=file_name)
             time.sleep(1)
 
@@ -177,12 +177,12 @@ if __name__ == '__main__':
     #print(obj.Hwnd)
     #print(obj.Get_Self_Hawd(0))
     # obj.Touch(573,460)
-    #hawd = obj.Get_Self_Hawd(0)
+    hawd = obj.Get_Self_Hawd(0)
     
     
-    #print(hawd)
-    #obj.getWindow_Img(787130,'test3.jpg')
-    obj.Keep_Game_ScreenHot(0,"test4.png")
+    print(hawd)
+    obj.getWindow_Img(1836900,'test_full.jpg')
+    #obj.Keep_Game_ScreenHot(0,"test4.png")
     # obj.window_capture(hawd,'test.png')
     # obj.Drag(1164,467,1164,400,1164,370)
     # obj.LD_Call()
