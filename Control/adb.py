@@ -11,7 +11,7 @@ import cv2
 class ADB:
     def __init__(self,Device_Name,Screen_Size):
 
-        self.ADB_Path = "../Tool/adb.exe"
+        self.ADB_Path = "./Tool/adb.exe"
         self.Screen_Size = Screen_Size
         self.Device_Name = Device_Name
         self.LD_Path = r"D:\ChangZhi\LDPlayer\\"

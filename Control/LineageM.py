@@ -1,5 +1,5 @@
-from Module import adb
-#import  adb
+#from Module import adb
+import  adb
 import time
 import os
 from PIL import Image
@@ -17,7 +17,7 @@ class LM:
        #導入範例檔案
        self.Import_Sample_Image(Sample_Path)
 
-       self.ADB.Keep_Game_ScreenHot(Emu_Index=0,file_name='test.png')
+       self.ADB.Keep_Game_ScreenHot(Emu_Index=0,file_name='test.jpg')
 
        while self.ADB.ScreenHot == None:
            print("等待…")
@@ -32,6 +32,29 @@ class LM:
         Point = Sample_hash - source_hash
 
         return Point
+
+    def HP_Detect_Above_80(self,source_img):
+        # Lineage M HP : Top-Left = [74,17], Bot-Right = [264,29]
+        # length = 190, width = 12
+        # 90% = 74 + 190 * 0.9 => [245,23]
+        # 80% => [226, 23]
+        # 70% => [207, 23]
+        # 60% => [188, 23]
+        # 50% => [169, 23]
+        # 40% => [150, 23]
+        
+        im_source = cv2.imread(source_img)
+        im_HSV = cv2.cvtColor(im_source,cv2.COLOR_BGR2HSV)
+        
+        # Red Mask
+        lower_red = np.array([0,43,46]) 
+        upper_red = np.array([10,255,255])
+        mask = cv2.inRange(im_HSV, lower_red, upper_red)
+
+        if mask[23,226] == 255:
+            return 1
+        else:
+            return 0
 
     def PIL_to_CV2(self,Pil_Img):
         open_cv_image = np.array(Pil_Img)
@@ -170,6 +193,7 @@ class LM:
 
 
 
+
         if name not in Btn_Map:
             print("無此按鍵名稱：{}".format(name))
             return 0
@@ -181,6 +205,24 @@ class LM:
 
 if __name__ == '__main__':
     obj = LM(Device_Name="emulator-5554",Sample_Path="./Data/Sample_img")
+
+    ### HP_Detection_Test:
+    #if obj.HP_Detect_Above_80('test.png'):
+        #print('HP above 80%')
+    #else:
+        #print('HP below 80%')
+    ### HP_Detection_Field_Test:
+    while 1:
+        
+        result = obj.HP_Detect_Above_80('test.jpg')
+        time.sleep(1)
+
+        if result == 0:
+            print("0")
+            obj.Click_System_Btn('F5')
+            time.sleep(1)
+        else:
+            print("1")
 
     #while 1:
     #    Has_stat =   obj.Check_Red_Water_Exist()
@@ -196,7 +238,7 @@ if __name__ == '__main__':
 
     # if rs == 1:
     #     print("有新訊息哦")
-    # else:
+    # else: 
     #     print("沒有新訊息哦")
 
     # obj.Click_System_Btn('Menu')
