@@ -12,16 +12,16 @@ class LM:
     def __init__(self,Device_Name,Sample_Path):
        self.ADB = adb.ADB(Device_Name=Device_Name,Screen_Size=[1280,720])
        #啟動截圖線程
-       #self.Game_Screen = self.ADB.ScreenHot
+       self.Game_Screen = self.ADB.ScreenHot
        self.Sample_Image = dict()
        #導入範例檔案
        self.Import_Sample_Image(Sample_Path)
 
-       self.ADB.Keep_Game_ScreenHot(Emu_Index=0,file_name='test.jpg')
+       #  self.ADB.Keep_Game_ScreenHot(Emu_Index=0,file_name='test.jpg')
 
-       while self.ADB.ScreenHot == None:
-           print("等待…")
-           time.sleep(0.1)
+       #  while self.ADB.ScreenHot == None:
+           #  print("等待…")
+           #  time.sleep(0.1)
 
     def Image_CMP(self,sample_img_name,source_img):
         Sample_img = Image.open(self.Sample_Image[sample_img_name])
@@ -55,6 +55,39 @@ class LM:
             return 1
         else:
             return 0
+
+
+    def HP_Detect_Above_80_new(self):
+        # Lineage M HP : Top-Left = [74,17], Bot-Right = [264,29]
+        # length = 190, width = 12
+        # 90% = 74 + 190 * 0.9 => [245,23]
+        # 80% => [226, 23]
+        # 70% => [207, 23]
+        # 60% => [188, 23]
+        # 50% => [169, 23]
+        # 40% => [150, 23]
+        
+        im_HSV = self.ADB.getWindow_Img_new(Emu_Index=0)
+        
+        # Red Mask
+        lower_red = np.array([0,43,150]) 
+        upper_red = np.array([10,255,255])
+        red_mask = cv2.inRange(im_HSV, lower_red, upper_red)
+        # test if HP is correctly filtered
+        #res_img = cv2.imwrite('res.jpg',mask)
+
+        
+        # Green Mask
+        lower_green = np.array([50,43,46]) 
+        upper_green = np.array([70,255,255])
+        green_mask = cv2.inRange(im_HSV, lower_green, upper_green)
+
+        if green_mask[23,112] == 255:
+            return 1 # green, poisoned
+        elif red_mask[23,226] == 255:
+            return 2 # HP above 80%
+        else:
+            return 0 # gray
 
     def PIL_to_CV2(self,Pil_Img):
         open_cv_image = np.array(Pil_Img)
@@ -213,16 +246,20 @@ if __name__ == '__main__':
         #print('HP below 80%')
     ### HP_Detection_Field_Test:
     while 1:
+        result = obj.HP_Detect_Above_80_new()
         
-        result = obj.HP_Detect_Above_80('test.jpg')
-        time.sleep(1)
+        if result == 1:
+            print("Poisoned")
+            obj.Click_System_Btn('F2')
 
-        if result == 0:
-            print("0")
+        elif result == 0:
+            print("HP below 80%")
             obj.Click_System_Btn('F5')
-            time.sleep(1)
+            
         else:
-            print("1")
+            print("Good!")
+        
+        time.sleep(0.5)
 
     #while 1:
     #    Has_stat =   obj.Check_Red_Water_Exist()

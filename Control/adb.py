@@ -124,6 +124,57 @@ class ADB:
         src_img = cv2.imwrite(filename,img)
         self.ScreenHot = src_img
 
+    def getWindow_Img_new(self,Emu_Index):
+        self.Hwnd = int(self.Get_Self_Hawd(Emu_Index))
+    
+    # 將 hwnd 換成 WindowLong
+        s = win32gui.GetWindowLong(self.Hwnd,win32con.GWL_EXSTYLE)
+        win32gui.SetWindowLong(self.Hwnd, win32con.GWL_EXSTYLE, s|win32con.WS_EX_LAYERED)
+    # 判斷視窗是否最小化
+        show = win32gui.IsIconic(self.Hwnd)
+    # 將視窗圖層屬性改變成透明    
+    # 還原視窗並拉到最前方
+    # 取消最大小化動畫
+    # 取得視窗寬高
+        if show == 1: 
+            win32gui.SystemParametersInfo(win32con.SPI_SETANIMATION, 0)
+            win32gui.SetLayeredWindowAttributes(self.Hwnd, 0, 0, win32con.LWA_ALPHA)
+            win32gui.ShowWindow(self.Hwnd, win32con.SW_RESTORE)    
+            x, y, width, height = self.getWindow_W_H(self.Hwnd)        
+    # 創造輸出圖層
+        hwindc = win32gui.GetWindowDC(self.Hwnd)
+        srcdc = win32ui.CreateDCFromHandle(hwindc)
+        memdc = srcdc.CreateCompatibleDC()
+        bmp = win32ui.CreateBitmap()
+    # 取得視窗寬高
+        x, y, width, height = self.getWindow_W_H(self.Hwnd)
+    # 如果視窗最小化，則移到Z軸最下方
+        if show == 1: win32gui.SetWindowPos(self.Hwnd, win32con.HWND_BOTTOM, x, y, width, height, win32con.SWP_NOACTIVATE)
+    # 複製目標圖層，貼上到 bmp
+        bmp.CreateCompatibleBitmap(srcdc, width, height)
+        memdc.SelectObject(bmp)
+        memdc.BitBlt((0 , 0), (width, height), srcdc, (8, 3), win32con.SRCCOPY)
+    # 將 bitmap 轉換成 np
+        signedIntsArray = bmp.GetBitmapBits(True)
+        img = np.fromstring(signedIntsArray, dtype='uint8')
+        img.shape = (height, width, 4) #png，具有透明度的
+    
+    # 釋放device content
+        srcdc.DeleteDC()
+        memdc.DeleteDC()
+        win32gui.ReleaseDC(self.Hwnd, hwindc)
+        win32gui.DeleteObject(bmp.GetHandle())
+    # 還原目標屬性
+        if show == 1 :
+            win32gui.SetLayeredWindowAttributes(self.Hwnd, 0, 255, win32con.LWA_ALPHA)
+            win32gui.SystemParametersInfo(win32con.SPI_SETANIMATION, 1)
+    # 回傳圖片
+        #return img
+        src_img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+        #src_img = cv2.imwrite(filename,img)
+        self.ScreenHot = src_img
+        return src_img
+
     def Touch(self,x,y,device_name=None):
         if device_name == None:
             device_name = self.Device_Name
@@ -181,7 +232,8 @@ if __name__ == '__main__':
     
     
     print(hawd)
-    obj.getWindow_Img(1836900,'test_full.jpg')
+    obj.getWindow_Img(67036,'test_full.jpg')
+    #obj.getWindow_Img_new(0)
     #obj.Keep_Game_ScreenHot(0,"test4.png")
     # obj.window_capture(hawd,'test.png')
     # obj.Drag(1164,467,1164,400,1164,370)
