@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 
-im1 = cv2.imread('test_full.jpg')
+im1 = cv2.imread('village.jpg')
 #im1 = cv2.imread('test3.jpg')
 im2 = cv2.cvtColor(im1,cv2.COLOR_BGR2HSV)
 px_100 = im2[23,264]
@@ -33,7 +33,7 @@ green_mask = cv2.inRange(im2, lower_green, upper_green)
 #mask_crop = mask[17:29, 74:264]
 mask_crop = green_mask[17:29, 74:264]
 result = cv2.bitwise_and(im1,im1,mask=mask)
-cv2.imshow('result',mask_crop)
+cv2.imshow('result',result)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
 

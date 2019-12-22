@@ -237,7 +237,7 @@ class LM:
 
 
 if __name__ == '__main__':
-    obj = LM(Device_Name="emulator-5554",Sample_Path="./Data/Sample_img")
+    obj = LM(Device_Name="127.0.0.1:5557",Sample_Path="./Data/Sample_img")
 
     ### HP_Detection_Test:
     #if obj.HP_Detect_Above_80('test.png'):
@@ -246,20 +246,23 @@ if __name__ == '__main__':
         #print('HP below 80%')
     ### HP_Detection_Field_Test:
     while 1:
-        result = obj.HP_Detect_Above_80_new()
+        try:
+            result = obj.HP_Detect_Above_80_new()
         
-        if result == 1:
-            print("Poisoned")
-            obj.Click_System_Btn('F2')
+            if result == 1:
+                print("Poisoned")
+                obj.Click_System_Btn('F2')
 
-        elif result == 0:
-            print("HP below 80%")
-            obj.Click_System_Btn('F5')
+            elif result == 0:
+                print("HP below 80%")
+                obj.Click_System_Btn('F5')
             
-        else:
-            print("Good!")
+            else:
+                print("Good!")
         
-        time.sleep(0.5)
+            time.sleep(0.5)
+        except:
+            pass
 
     #while 1:
     #    Has_stat =   obj.Check_Red_Water_Exist()

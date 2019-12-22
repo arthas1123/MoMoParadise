@@ -232,7 +232,8 @@ if __name__ == '__main__':
     
     
     print(hawd)
-    obj.getWindow_Img(67036,'test_full.jpg')
+    obj.getWindow_Img(131340,'evil_lizzard.jpg')   ## 0
+    #obj.getWindow_Img(788840,'red_potion_lower.jpg')  ## 1-2
     #obj.getWindow_Img_new(0)
     #obj.Keep_Game_ScreenHot(0,"test4.png")
     # obj.window_capture(hawd,'test.png')
