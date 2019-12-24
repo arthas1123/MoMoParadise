@@ -201,10 +201,15 @@ class LM:
     
     def Check_Orange_Potion(self,Emu_Index):
         org_loc = self.Image_CMP_new(temp_img = 'orange_potion_low.jpg', threshold = 0.99, Emu_Index =0)
-        if org_loc[0] in range(921,987):
-            print('Low')
-        else:
+        print(org_loc)
+        if org_loc == 0:
             print('Good')
+            return 0
+        elif org_loc[0] in range(921,987):
+            print('Low')
+            return 1
+        else:
+            print('Retry')
 
     def Check_And_Take_Sign_MailBox(self):
 
@@ -267,8 +272,28 @@ class LM:
 if __name__ == '__main__':
     obj = LM(Device_Name="emulator-5554",Sample_Path="./Data/Sample_img")
     #obj.Image_CMP_new('orange_potion_low.jpg',0.9,0)
-    #obj.Check_Orange_Potion(0)
-    print(obj.HP_Detect_Above_80_new(0))
+    obj.Check_Orange_Potion(0)
+    #print(obj.HP_Detect_Above_80_new(0))
+    while 1:
+        try:
+            HP_now = obj.HP_Detect_Above_80_new(0)
+            org_stock = obj.Check_Orange_Potion(0)
+            if HP_now == 0:
+                print('HP Low')
+                if org_stock == 0:
+                    obj.Click_System_Btn('F5')
+                    time.sleep(0.5)
+                else:
+                    print("Orange potion running low")
+                    obj.Click_System_Btn('F2')
+                    break
+
+            else:
+                print("HP High")
+                time.sleep(0.5)
+
+        except:
+            pass
 
     ### HP_Detection_Test:
     #if obj.HP_Detect_Above_80('test.png'):
