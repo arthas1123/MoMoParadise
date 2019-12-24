@@ -32,6 +32,26 @@ class LM:
         Point = Sample_hash - source_hash
 
         return Point
+    def Image_CMP_new(self,temp_img,threshold,Emu_Index):
+        img_src = self.ADB.getWindow_Img_new(Emu_Index)
+        #cv2.imwrite('src1.jpg',img_src)
+        im1 = cv2.cvtColor(img_src, cv2.COLOR_BGRA2BGR)
+        #cv2.imwrite('src2.jpg',img_src)
+        template = cv2.imread(temp_img)
+        #print(template.shape)
+        
+        res = cv2.matchTemplate(im1, template, cv2.TM_CCOEFF_NORMED)
+        min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
+        cv2.imwrite('img_cmp.jpg',img_src)
+        cv2.imwrite('temp.jpg',template)
+        print(max_val)
+        
+        if max_val > threshold:
+            return max_loc
+        else:
+            print('Not found')
+            return 0
+
 
     def HP_Detect_Above_80(self,source_img):
         # Lineage M HP : Top-Left = [74,17], Bot-Right = [264,29]
@@ -57,7 +77,7 @@ class LM:
             return 0
 
 
-    def HP_Detect_Above_80_new(self):
+    def HP_Detect_Above_80_new(self,Emu_Index):
         # Lineage M HP : Top-Left = [74,17], Bot-Right = [264,29]
         # length = 190, width = 12
         # 90% = 74 + 190 * 0.9 => [245,23]
@@ -67,14 +87,15 @@ class LM:
         # 50% => [169, 23]
         # 40% => [150, 23]
         
-        im_HSV = self.ADB.getWindow_Img_new(Emu_Index=0)
+        src_img = self.ADB.getWindow_Img_new(Emu_Index)
+        im_HSV = cv2.cvtColor(src_img, cv2.COLOR_BGR2HSV)
         
         # Red Mask
         lower_red = np.array([0,43,150]) 
         upper_red = np.array([10,255,255])
         red_mask = cv2.inRange(im_HSV, lower_red, upper_red)
         # test if HP is correctly filtered
-        #res_img = cv2.imwrite('res.jpg',mask)
+        res_img = cv2.imwrite('res.jpg',red_mask)
 
         
         # Green Mask
@@ -177,6 +198,13 @@ class LM:
             return 0
         else:
             return 1
+    
+    def Check_Orange_Potion(self,Emu_Index):
+        org_loc = self.Image_CMP_new(temp_img = 'orange_potion_low.jpg', threshold = 0.99, Emu_Index =0)
+        if org_loc[0] in range(921,987):
+            print('Low')
+        else:
+            print('Good')
 
     def Check_And_Take_Sign_MailBox(self):
 
@@ -237,41 +265,18 @@ class LM:
 
 
 if __name__ == '__main__':
-    obj = LM(Device_Name="127.0.0.1:5557",Sample_Path="./Data/Sample_img")
+    obj = LM(Device_Name="emulator-5554",Sample_Path="./Data/Sample_img")
+    #obj.Image_CMP_new('orange_potion_low.jpg',0.9,0)
+    #obj.Check_Orange_Potion(0)
+    print(obj.HP_Detect_Above_80_new(0))
 
     ### HP_Detection_Test:
     #if obj.HP_Detect_Above_80('test.png'):
         #print('HP above 80%')
     #else:
         #print('HP below 80%')
-    ### HP_Detection_Field_Test:
-    while 1:
-        try:
-            result = obj.HP_Detect_Above_80_new()
-        
-            if result == 1:
-                print("Poisoned")
-                obj.Click_System_Btn('F2')
+    
 
-            elif result == 0:
-                print("HP below 80%")
-                obj.Click_System_Btn('F5')
-            
-            else:
-                print("Good!")
-        
-            time.sleep(0.5)
-        except:
-            pass
-
-    #while 1:
-    #    Has_stat =   obj.Check_Red_Water_Exist()
-    #    if Has_stat == 1:
-    #        print("有藥水")
-    #    else:
-    #        print("沒藥水")
-    #        obj.Click_System_Btn("F8")
-    #    time.sleep(1)
 
     # obj.Click_System_Btn("Menu_Sign_in")
     # rs = obj.Check_And_Take_Sign_MailBox()
