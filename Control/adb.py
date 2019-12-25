@@ -179,15 +179,16 @@ if __name__ == '__main__':
     obj = ADB(Device_Name="emulator-5554",Screen_Size=[1280,720])
     #print(obj.Hwnd)
     #print(obj.Get_Self_Hawd(0))
-    # obj.Touch(573,460)
+    obj.Touch(573,460)
     hawd = obj.Get_Self_Hawd(0)
     
     
     print(hawd)
-    obj.getWindow_Img(1574364,'test5.jpg')   ## 0
-    im1 = cv2.imread('test5.jpg')
-    potion_img = im1[598:664, 921:987]
-    cv2.imwrite('orange_potion_low.jpg',potion_img)
+    im1 = obj.getWindow_Img_new(0)   ## 0
+    cv2.imwrite('PVP.jpg',im1)
+    #im1 = cv2.imread('test5.jpg')
+    #potion_img = im1[598:664, 921:987]
+    #cv2.imwrite('orange_potion_low.jpg',potion_img)
 
     #obj.getWindow_Img(788840,'red_potion_lower.jpg')  ## 1-2
     #obj.getWindow_Img_new(0)

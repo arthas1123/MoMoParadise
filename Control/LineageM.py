@@ -1,5 +1,5 @@
-#from Module import adb
-import  adb
+from Module import adb
+#import adb
 import time
 import os
 from PIL import Image
@@ -42,8 +42,8 @@ class LM:
         
         res = cv2.matchTemplate(im1, template, cv2.TM_CCOEFF_NORMED)
         min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
-        cv2.imwrite('img_cmp.jpg',img_src)
-        cv2.imwrite('temp.jpg',template)
+        #cv2.imwrite('img_cmp.jpg',img_src)
+        #cv2.imwrite('temp.jpg',template)
         print(max_val)
         
         if max_val > threshold:
@@ -95,7 +95,7 @@ class LM:
         upper_red = np.array([10,255,255])
         red_mask = cv2.inRange(im_HSV, lower_red, upper_red)
         # test if HP is correctly filtered
-        res_img = cv2.imwrite('res.jpg',red_mask)
+        # res_img = cv2.imwrite('res.jpg',red_mask)
 
         
         # Green Mask
@@ -210,6 +210,18 @@ class LM:
             return 1
         else:
             print('Retry')
+    
+    def Check_Red_Potion(self,Emu_Index):
+        org_loc = self.Image_CMP_new(temp_img = 'red_water_10.jpg', threshold = 0.99, Emu_Index=Emu_Index)
+        print(org_loc)
+        if org_loc == 0:
+            print('Good')
+            return 0
+        elif org_loc[0] in range(921,987):
+            print('Low')
+            return 1
+        else:
+            print('Retry')
 
     def Check_And_Take_Sign_MailBox(self):
 
@@ -270,30 +282,12 @@ class LM:
 
 
 if __name__ == '__main__':
-    obj = LM(Device_Name="emulator-5554",Sample_Path="./Data/Sample_img")
+    obj = LM(Device_Name="127.0.0.1:5561",Sample_Path="./Data/Sample_img")
     #obj.Image_CMP_new('orange_potion_low.jpg',0.9,0)
-    obj.Check_Orange_Potion(0)
+    #obj.Check_Orange_Potion(0)
+    obj.Check_Red_Potion(3)
     #print(obj.HP_Detect_Above_80_new(0))
-    while 1:
-        try:
-            HP_now = obj.HP_Detect_Above_80_new(0)
-            org_stock = obj.Check_Orange_Potion(0)
-            if HP_now == 0:
-                print('HP Low')
-                if org_stock == 0:
-                    obj.Click_System_Btn('F5')
-                    time.sleep(0.5)
-                else:
-                    print("Orange potion running low")
-                    obj.Click_System_Btn('F2')
-                    break
 
-            else:
-                print("HP High")
-                time.sleep(0.5)
-
-        except:
-            pass
 
     ### HP_Detection_Test:
     #if obj.HP_Detect_Above_80('test.png'):
