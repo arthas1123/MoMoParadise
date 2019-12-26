@@ -1,0 +1,1 @@
+Invoke-Expression 'cmd /c start py D:\py_prac\MoMo2\MoMoParadise\main_0.py'

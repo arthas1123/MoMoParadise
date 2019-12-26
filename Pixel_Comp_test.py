@@ -22,6 +22,11 @@ mask1 = cv2.inRange(im2, lower_red, upper_red)
 # join my masks
 mask = mask0+mask1
 
+# Blue Mask
+lower_blue = np.array([90,30,130]) 
+upper_blue = np.array([110,80,255])
+blue_mask = cv2.inRange(im2, lower_blue, upper_blue)
+
 # Green Mask
 lower_green = np.array([50,43,46]) 
 upper_green = np.array([70,255,255])
@@ -31,8 +36,9 @@ green_mask = cv2.inRange(im2, lower_green, upper_green)
 # Lineage M HP : Top-Left = [74,17], Bot-Right = [264,29]
 # length = 190, width = 12
 #mask_crop = mask[17:29, 74:264]
-mask_crop = green_mask[17:29, 74:264]
-result = cv2.bitwise_and(im1,im1,mask=mask)
+#mask_crop = green_mask[17:29, 74:264]
+
+result = cv2.bitwise_and(im1,im1,mask=blue_mask)
 cv2.imshow('result',result)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
