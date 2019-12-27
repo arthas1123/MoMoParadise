@@ -12,16 +12,19 @@ class Main():
         while 1:
             try:
                 HP_now = self.LM.HP_Detect_Above_80_new(self.Device_Index)
-                red_stock = self.LM.Check_Red_Potion(self.Device_Index)
+                org_stock = self.LM.Check_Orange_Potion(self.Device_Index)
                 if HP_now == 0:
                     print('HP Low')
-                    if red_stock == 0:
+                    if org_stock == 0:
                         self.LM.Click_System_Btn('F5')
                         time.sleep(0.5)
                     else:
                         print("Orange potion running low")
                         self.LM.Click_System_Btn('F2')
                         break
+                elif HP_now == 1:
+                    self.LM.Click_System_Btn('F8')
+                    time.sleep(0.5)
 
                 else:
                     print("HP High")
@@ -31,5 +34,5 @@ class Main():
                 pass
 
 if __name__ == "__main__":
-    obj = Main(Device_Index=3,Device_Name="127.0.0.1:5561",)
+    obj = Main(Device_Index=3,Device_Name="127.0.0.1:5561",) ##1-3
     obj.start()

@@ -34,7 +34,7 @@ class Main():
                 pass
 
 if __name__ == "__main__":
-    #obj = Main(Device_Index=0,Device_Name="127.0.0.1:5555",)
-    obj = Main(Device_Index=0,Device_Name="emulator-5554",)
+    obj = Main(Device_Index=0,Device_Name="127.0.0.1:5555")
+    #obj = Main(Device_Index=0,Device_Name="emulator-5554")
     #print(obj.LM.Check_Orange_Potion(0))
     obj.start()
