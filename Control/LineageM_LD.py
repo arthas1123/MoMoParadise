@@ -1,3 +1,4 @@
+
 from Module import ldconsole
 #import ldconsole
 import time
@@ -21,7 +22,8 @@ class LM(object):
        self.Import_Sample_Image(Sample_Path)
        self.Screen_Now = None
        self.Stop_Cap = False
-       #self.Keep_Emu_Img_Cap()
+       self.Safe_Area = None
+
     
     def Import_Sample_Image(self,Path):
         if os.path.isdir(Path) == False:
@@ -50,8 +52,25 @@ class LM(object):
         th = Thread(target=self.Get_Emu_Img_now,args= [])
         th.start()
     
+
     @staticmethod
-    def Image_CMP(src_img, temp_img, threshold, Emu_Index):
+    def Check_Safe_Area_fn(src_img, temp_img, threshold):
+        res = LM.Image_CMP_fn(im_src, temp_img, threshold)
+        if res != 0:
+            print('Safe Area')
+        else:
+            print('Wild Area')
+    
+    def Check_Safe_Area(self):
+        res = self.Image_CMP_new(temp_img = 'safe_area.jpg', threshold = 0.7)
+        if res != 0:
+            self.Safe_Area = True
+        else:
+            self.Safe_Area = False
+        
+
+    @staticmethod
+    def Image_CMP_fn(src_img, temp_img, threshold):
         img_src = cv.imread(src_img)
         #cv.imwrite('src1.jpg',img_src)
         #im1 = cv.cvtColor(img_src, cv.COLOR_BGRA2BGR)
@@ -71,7 +90,7 @@ class LM(object):
             print('Not found')
             return 0
 
-    def Image_CMP_new(self,temp_img,threshold,Emu_Index):
+    def Image_CMP_new(self,temp_img,threshold):
         im1 = self.Screen_Now
         #print(im1)
         #cv.imwrite('src1.jpg',img_src)
@@ -184,7 +203,7 @@ class LM(object):
         print(org_mil_loc)
 
     def Check_Orange_Potion_low(self):
-        org_loc = self.Image_CMP_new(temp_img = 'orange_potion_low.jpg', threshold = 0.99, Emu_Index=self.Index_Num)
+        org_loc = self.Image_CMP_new(temp_img = 'orange_potion_low.jpg', threshold = 0.99)
         print(org_loc)
         if org_loc == 0:
             print('Good')
@@ -202,7 +221,7 @@ class LM(object):
         
     
     def Check_Red_Potion_low(self,Emu_Index):
-        red_loc = self.Image_CMP_new(temp_img = 'red_water_10.jpg', threshold = 0.99, Emu_Index=self.Emu_Index)
+        red_loc = self.Image_CMP_new(temp_img = 'red_water_10.jpg', threshold = 0.99)
         print(org_loc)
         if red_loc == 0:
             print('Good')
@@ -219,6 +238,7 @@ class LM(object):
         Btn_Map['F2'] = [620, 637]
         Btn_Map['F3'] = [706, 637]
         Btn_Map['F4'] = [784, 637]
+        Btn_Map['Special_Item'] = [860, 637]
         Btn_Map['F5'] = [960, 637]
         Btn_Map['F6'] = [1047, 637]
         Btn_Map['F7'] = [1125, 637]
@@ -268,10 +288,28 @@ if __name__ == '__main__':
     ### Test HP Detection
 
     ### Cap and Crop
-    #im1 = cv.imread('Emu_1_now.jpg')[598:598+66, 921:921+66]
-    #cv.imwrite('orange_potion_zero.jpg',im1)
+    #im1 = cv.imread('Emu_0_now.jpg')[309:330, 1124:1206]
+    #cv.imwrite('Safe_Area.jpg',im1)
     #print(im1.shape)
     ### Cap and Crop
+    
+    
+    #im1 = cv.imread('safe_area.jpg')
+    #lower_blue = np.array([100,0,0]) 
+    #upper_blue = np.array([140,255,255])
+    #blue_mask = cv.inRange(im1, lower_blue, upper_blue)
+    #cv.imwrite('filtered_SA.jpg', blue_mask)
+    
+    ### Check self functions
+    obj = LM(2, "./Data/Sample_img")
+    obj.Keep_Emu_Img_Cap()
+    #time.sleep(0.5)
+    ### Check self functions
+
+    ### Self Safe Area
+    #obj.Check_Safe_Area()
+    #print(obj.Safe_Area)
+
     
 
     ### Check item: 30 org = 0.00874, 20 org = 0.00793 , 10 org = 0.00109, thus for 10 org potions, threshold could be 0.008
@@ -282,15 +320,14 @@ if __name__ == '__main__':
     #time.sleep(5)
     #a.Stop_Cap = True
     
-    obj = LM(2, "./Data/Sample_img")
-    obj.Keep_Emu_Img_Cap()
-    time.sleep(0.5)
-    res = obj.Check_Orange_Potion_low()
+    ### Check Emu Running
+    #obj = LM(2, "./Data/Sample_img")
+    #obj.Keep_Emu_Img_Cap()
+    #time.sleep(0.5)
+
+    ### Check Orange potion
+    #res = obj.Check_Orange_Potion_low()
     #print(res)
     
     #obj.Click_System_Btn('F4')
     #print(a.Screen_Now)
-
-    #LM.Image_CMP('Emu_0_now.jpg', 'orange_potion_low.jpg', 0.99, 0)
-
-    
