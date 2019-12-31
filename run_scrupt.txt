@@ -1,0 +1,1 @@
+Invoke-Expression 'cmd /c start py .\main_0.py'

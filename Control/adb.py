@@ -11,7 +11,7 @@ import cv2
 class ADB:
     def __init__(self,Device_Name,Screen_Size):
 
-        self.ADB_Path = "../Tool/adb.exe"
+        self.ADB_Path = "./Tool/adb.exe"
         self.Screen_Size = Screen_Size
         self.Device_Name = Device_Name
         self.LD_Path = r"D:\ChangZhi\LDPlayer\\"
@@ -23,11 +23,11 @@ class ADB:
         th.start()
 
     def Keep_Game_ScreenHot_fn(self,Emu_Index,file_name):
-        self.Hwnd = self.Get_Self_Hawd(Emu_Index)
+        self.Hwnd = int(self.Get_Self_Hawd(Emu_Index))
     
         while 1:
             
-            self.getWindow_Img(hwnd=787130,filename=file_name)
+            self.getWindow_Img(self.Hwnd,filename=file_name)
             #self.getWindow_Img(hwnd=self.Hwnd,filename=file_name)
             time.sleep(1)
 
@@ -75,31 +75,33 @@ class ADB:
         width = right - left #+ 280
         height = bot - top #+ 150
         return (left, top, width, height)
+   
+    def getWindow_Img_new(self,Emu_Index):
+        self.Hwnd = int(self.Get_Self_Hawd(Emu_Index))
     
-    def getWindow_Img(self,hwnd,filename):
     # 將 hwnd 換成 WindowLong
-        s = win32gui.GetWindowLong(hwnd,win32con.GWL_EXSTYLE)
-        win32gui.SetWindowLong(hwnd, win32con.GWL_EXSTYLE, s|win32con.WS_EX_LAYERED)
+        s = win32gui.GetWindowLong(self.Hwnd,win32con.GWL_EXSTYLE)
+        win32gui.SetWindowLong(self.Hwnd, win32con.GWL_EXSTYLE, s|win32con.WS_EX_LAYERED)
     # 判斷視窗是否最小化
-        show = win32gui.IsIconic(hwnd)
+        show = win32gui.IsIconic(self.Hwnd)
     # 將視窗圖層屬性改變成透明    
     # 還原視窗並拉到最前方
     # 取消最大小化動畫
     # 取得視窗寬高
         if show == 1: 
             win32gui.SystemParametersInfo(win32con.SPI_SETANIMATION, 0)
-            win32gui.SetLayeredWindowAttributes(hwnd, 0, 0, win32con.LWA_ALPHA)
-            win32gui.ShowWindow(hwnd, win32con.SW_RESTORE)    
-            x, y, width, height = self.getWindow_W_H(hwnd)        
+            win32gui.SetLayeredWindowAttributes(self.Hwnd, 0, 0, win32con.LWA_ALPHA)
+            win32gui.ShowWindow(self.Hwnd, win32con.SW_RESTORE)    
+            x, y, width, height = self.getWindow_W_H(self.Hwnd)        
     # 創造輸出圖層
-        hwindc = win32gui.GetWindowDC(hwnd)
+        hwindc = win32gui.GetWindowDC(self.Hwnd)
         srcdc = win32ui.CreateDCFromHandle(hwindc)
         memdc = srcdc.CreateCompatibleDC()
         bmp = win32ui.CreateBitmap()
     # 取得視窗寬高
-        x, y, width, height = self.getWindow_W_H(hwnd)
+        x, y, width, height = self.getWindow_W_H(self.Hwnd)
     # 如果視窗最小化，則移到Z軸最下方
-        if show == 1: win32gui.SetWindowPos(hwnd, win32con.HWND_BOTTOM, x, y, width, height, win32con.SWP_NOACTIVATE)
+        if show == 1: win32gui.SetWindowPos(self.Hwnd, win32con.HWND_BOTTOM, x, y, width, height, win32con.SWP_NOACTIVATE)
     # 複製目標圖層，貼上到 bmp
         bmp.CreateCompatibleBitmap(srcdc, width, height)
         memdc.SelectObject(bmp)
@@ -112,17 +114,18 @@ class ADB:
     # 釋放device content
         srcdc.DeleteDC()
         memdc.DeleteDC()
-        win32gui.ReleaseDC(hwnd, hwindc)
+        win32gui.ReleaseDC(self.Hwnd, hwindc)
         win32gui.DeleteObject(bmp.GetHandle())
     # 還原目標屬性
         if show == 1 :
-            win32gui.SetLayeredWindowAttributes(hwnd, 0, 255, win32con.LWA_ALPHA)
+            win32gui.SetLayeredWindowAttributes(self.Hwnd, 0, 255, win32con.LWA_ALPHA)
             win32gui.SystemParametersInfo(win32con.SPI_SETANIMATION, 1)
     # 回傳圖片
-        #return img
-        src_img = cv2.cvtColor(img, cv2.COLOR_BGRA2RGB)
-        src_img = cv2.imwrite(filename,img)
-        self.ScreenHot = src_img
+        #src_img = img
+        #src_img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+        #src_img = cv2.imwrite('test1.jpg',img)
+        self.ScreenHot = img
+        return img
 
     def Touch(self,x,y,device_name=None):
         if device_name == None:
@@ -173,16 +176,27 @@ class ADB:
 
 
 if __name__ == '__main__':
-    obj = ADB(Device_Name="emulator-5554",Screen_Size=[1280,720])
+    obj = ADB(Device_Name="127.0.0.1:5559",Screen_Size=[1280,720])
     #print(obj.Hwnd)
     #print(obj.Get_Self_Hawd(0))
-    # obj.Touch(573,460)
-    #hawd = obj.Get_Self_Hawd(0)
-    
-    
+    #obj.Touch(573,460)
+    #hawd = obj.Get_Self_Hawd(2)
     #print(hawd)
-    #obj.getWindow_Img(787130,'test3.jpg')
-    obj.Keep_Game_ScreenHot(0,"test4.png")
+    obj.getWindow_Img_new(0)
+    print(obj.ScreenHot)
+    #menu_img = obj.ScreenHot[0:363, 889:1262]
+
+    #cv2.imshow('result',menu_img)
+    #cv2.waitKey(0)
+    #cv2.destroyAllWindows()
+    #cv2.imwrite('daily_check.jpg',im1)
+    #im1 = cv2.imread('test5.jpg')
+    #potion_img = im1[598:664, 921:987]
+    #cv2.imwrite('orange_potion_low.jpg',potion_img)
+
+    #obj.getWindow_Img(788840,'red_potion_lower.jpg')  ## 1-2
+    #obj.getWindow_Img_new(0)
+    #obj.Keep_Game_ScreenHot(0,"test4.png")
     # obj.window_capture(hawd,'test.png')
     # obj.Drag(1164,467,1164,400,1164,370)
     # obj.LD_Call()

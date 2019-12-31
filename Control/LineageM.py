@@ -1,5 +1,5 @@
 from Module import adb
-#import  adb
+#import adb
 import time
 import os
 from PIL import Image
@@ -12,16 +12,16 @@ class LM:
     def __init__(self,Device_Name,Sample_Path):
        self.ADB = adb.ADB(Device_Name=Device_Name,Screen_Size=[1280,720])
        #啟動截圖線程
-       #self.Game_Screen = self.ADB.ScreenHot
+       self.Game_Screen = self.ADB.ScreenHot
        self.Sample_Image = dict()
        #導入範例檔案
        self.Import_Sample_Image(Sample_Path)
 
-       self.ADB.Keep_Game_ScreenHot(Emu_Index=0,file_name='test.png')
+       #  self.ADB.Keep_Game_ScreenHot(Emu_Index=0,file_name='test.jpg')
 
-       while self.ADB.ScreenHot == None:
-           print("等待…")
-           time.sleep(0.1)
+       #  while self.ADB.ScreenHot == None:
+           #  print("等待…")
+           #  time.sleep(0.1)
 
     def Image_CMP(self,sample_img_name,source_img):
         Sample_img = Image.open(self.Sample_Image[sample_img_name])
@@ -32,6 +32,83 @@ class LM:
         Point = Sample_hash - source_hash
 
         return Point
+    def Image_CMP_new(self,temp_img,threshold,Emu_Index):
+        img_src = self.ADB.getWindow_Img_new(Emu_Index)
+        #cv2.imwrite('src1.jpg',img_src)
+        im1 = cv2.cvtColor(img_src, cv2.COLOR_BGRA2BGR)
+        #cv2.imwrite('src2.jpg',img_src)
+        template = cv2.imread(temp_img)
+        #print(template.shape)
+        
+        res = cv2.matchTemplate(im1, template, cv2.TM_CCOEFF_NORMED)
+        min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
+        #cv2.imwrite('img_cmp.jpg',img_src)
+        #cv2.imwrite('temp.jpg',template)
+        print(max_val)
+        
+        if max_val > threshold:
+            return max_loc
+        else:
+            print('Not found')
+            return 0
+
+
+    def HP_Detect_Above_80(self,source_img):
+        # Lineage M HP : Top-Left = [74,17], Bot-Right = [264,29]
+        # length = 190, width = 12
+        # 90% = 74 + 190 * 0.9 => [245,23]
+        # 80% => [226, 23]
+        # 70% => [207, 23]
+        # 60% => [188, 23]
+        # 50% => [169, 23]
+        # 40% => [150, 23]
+        
+        im_source = cv2.imread(source_img)
+        im_HSV = cv2.cvtColor(im_source,cv2.COLOR_BGR2HSV)
+        
+        # Red Mask
+        lower_red = np.array([0,43,46]) 
+        upper_red = np.array([10,255,255])
+        mask = cv2.inRange(im_HSV, lower_red, upper_red)
+
+        if mask[23,226] == 255:
+            return 1
+        else:
+            return 0
+
+
+    def HP_Detect_Above_80_new(self,Emu_Index):
+        # Lineage M HP : Top-Left = [74,17], Bot-Right = [264,29]
+        # length = 190, width = 12
+        # 90% = 74 + 190 * 0.9 => [245,23]
+        # 80% => [226, 23]
+        # 70% => [207, 23]
+        # 60% => [188, 23]
+        # 50% => [169, 23]
+        # 40% => [150, 23]
+        
+        src_img = self.ADB.getWindow_Img_new(Emu_Index)
+        im_HSV = cv2.cvtColor(src_img, cv2.COLOR_BGR2HSV)
+        
+        # Red Mask
+        lower_red = np.array([0,43,150]) 
+        upper_red = np.array([10,255,255])
+        red_mask = cv2.inRange(im_HSV, lower_red, upper_red)
+        # test if HP is correctly filtered
+        # res_img = cv2.imwrite('res.jpg',red_mask)
+
+        
+        # Green Mask
+        lower_green = np.array([50,43,46]) 
+        upper_green = np.array([70,255,255])
+        green_mask = cv2.inRange(im_HSV, lower_green, upper_green)
+
+        if green_mask[23,112] == 255:
+            return 1 # green, poisoned
+        elif red_mask[23,226] == 255:
+            return 2 # HP above 80%
+        else:
+            return 0 # gray
 
     def PIL_to_CV2(self,Pil_Img):
         open_cv_image = np.array(Pil_Img)
@@ -72,6 +149,24 @@ class LM:
         else:
             return 1
 
+    def Check_Menu_Red_Point(self):
+        # menu_loc = [889,0,1262,363]
+        menu_Img =  self.ADB.ScreenHot[0:363, 889:1262]
+        r=0
+        g=1
+        b=2
+
+        r_query = 255
+        loc = np.where((menu_Img[:,:,r] == r_query))
+
+        y_loc = loc[0]
+        x_loc = loc[1]
+
+        mail_point = [203,306]
+        menu_point = [356,25]
+
+        print(menu_point[0] in x_loc)
+        print(menu_point[1] in y_loc)
 
 
 
@@ -87,18 +182,6 @@ class LM:
 
         W_count = self.Get_Array_Num_Count(mask, 255)
         return W_count
-
-    def Check_Menu_Red_Point(self):
-        loc = [1243,21,1261,40]
-
-        Menu_img = self.ADB.ScreenHot.crop(loc)
-       # Menu_img.save('now_menu.png')
-
-        W_count = self.Get_PIL_Red_Point_Count(Menu_img)
-        if W_count == 0:
-            return  0
-        else:
-            return 1
 
     def Import_Sample_Image(self,Path):
         if os.path.isdir(Path) == False:
@@ -121,6 +204,30 @@ class LM:
             return 0
         else:
             return 1
+    
+    def Check_Orange_Potion(self,Emu_Index):
+        org_loc = self.Image_CMP_new(temp_img = 'orange_potion_low.jpg', threshold = 0.99, Emu_Index=Emu_Index)
+        print(org_loc)
+        if org_loc == 0:
+            print('Good')
+            return 0
+        elif org_loc[0] in range(921,987):
+            print('Low')
+            return 1
+        else:
+            print('Retry')
+    
+    def Check_Red_Potion(self,Emu_Index):
+        org_loc = self.Image_CMP_new(temp_img = 'red_water_10.jpg', threshold = 0.99, Emu_Index=Emu_Index)
+        print(org_loc)
+        if org_loc == 0:
+            print('Good')
+            return 0
+        elif org_loc[0] in range(921,987):
+            print('Low')
+            return 1
+        else:
+            print('Retry')
 
     def Check_And_Take_Sign_MailBox(self):
 
@@ -170,6 +277,7 @@ class LM:
 
 
 
+
         if name not in Btn_Map:
             print("無此按鍵名稱：{}".format(name))
             return 0
@@ -180,23 +288,29 @@ class LM:
 
 
 if __name__ == '__main__':
-    obj = LM(Device_Name="emulator-5554",Sample_Path="./Data/Sample_img")
+    obj = LM(Device_Name="emulator-5556",Sample_Path="./Data/Sample_img")
+    obj.ADB.getWindow_Img_new(2)
+    #obj.Image_CMP_new('orange_potion_low.jpg',0.9,0)
+    print(obj.Game_Screen)
+    #obj.Check_Orange_Potion(0)
+    #obj.Check_Red_Potion(2)
+    #print(obj.HP_Detect_Above_80_new(0))
 
-    #while 1:
-    #    Has_stat =   obj.Check_Red_Water_Exist()
-    #    if Has_stat == 1:
-    #        print("有藥水")
-    #    else:
-    #        print("沒藥水")
-    #        obj.Click_System_Btn("F8")
-    #    time.sleep(1)
+
+    ### HP_Detection_Test:
+    #if obj.HP_Detect_Above_80('test.png'):
+        #print('HP above 80%')
+    #else:
+        #print('HP below 80%')
+    
+
 
     # obj.Click_System_Btn("Menu_Sign_in")
     # rs = obj.Check_And_Take_Sign_MailBox()
 
     # if rs == 1:
     #     print("有新訊息哦")
-    # else:
+    # else: 
     #     print("沒有新訊息哦")
 
     # obj.Click_System_Btn('Menu')

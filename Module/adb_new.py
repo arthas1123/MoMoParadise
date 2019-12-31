@@ -72,8 +72,8 @@ class ADB:
     def getWindow_W_H(self,hwnd):
     # 取得目標視窗的大小
         left, top, right, bot = win32gui.GetWindowRect(hwnd)
-        width = right - left #+ 280
-        height = bot - top #+ 150
+        width = right - left + 280
+        height = bot - top + 150
         return (left, top, width, height)
    
     def getWindow_Img_new(self,Emu_Index):
@@ -121,11 +121,11 @@ class ADB:
             win32gui.SetLayeredWindowAttributes(self.Hwnd, 0, 255, win32con.LWA_ALPHA)
             win32gui.SystemParametersInfo(win32con.SPI_SETANIMATION, 1)
     # 回傳圖片
-        #src_img = img
+        src_img = img
         #src_img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-        #src_img = cv2.imwrite('test1.jpg',img)
-        #self.ScreenHot = img
-        return img
+        #src_img = cv2.imwrite(filename,img)
+        self.ScreenHot = src_img
+        return src_img
 
     def Touch(self,x,y,device_name=None):
         if device_name == None:
@@ -176,18 +176,15 @@ class ADB:
 
 
 if __name__ == '__main__':
-    obj = ADB(Device_Name="emulator-5556",Screen_Size=[1280,720])
+    obj = ADB(Device_Name="emulator-5554",Screen_Size=[1280,720])
     #print(obj.Hwnd)
     #print(obj.Get_Self_Hawd(0))
-    #obj.Touch(573,460)
-    #hawd = obj.Get_Self_Hawd(2)
-    #print(hawd)
-    obj.getWindow_Img_new(1)
-    #menu_img = obj.ScreenHot[0:363, 889:1262]
-
-    #cv2.imshow('result',menu_img)
-    #cv2.waitKey(0)
-    #cv2.destroyAllWindows()
+    obj.Touch(573,460)
+    hawd = obj.Get_Self_Hawd(0)
+    
+    
+    print(hawd)
+    #im1 = obj.getWindow_Img_new(0)   ## 0
     #cv2.imwrite('daily_check.jpg',im1)
     #im1 = cv2.imread('test5.jpg')
     #potion_img = im1[598:664, 921:987]
