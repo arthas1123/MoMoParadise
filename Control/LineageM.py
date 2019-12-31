@@ -149,6 +149,24 @@ class LM:
         else:
             return 1
 
+    def Check_Menu_Red_Point(self):
+        # menu_loc = [889,0,1262,363]
+        menu_Img =  self.ADB.ScreenHot[0:363, 889:1262]
+        r=0
+        g=1
+        b=2
+
+        r_query = 255
+        loc = np.where((menu_Img[:,:,r] == r_query))
+
+        y_loc = loc[0]
+        x_loc = loc[1]
+
+        mail_point = [203,306]
+        menu_point = [356,25]
+
+        print(menu_point[0] in x_loc)
+        print(menu_point[1] in y_loc)
 
 
 
@@ -164,18 +182,6 @@ class LM:
 
         W_count = self.Get_Array_Num_Count(mask, 255)
         return W_count
-
-    def Check_Menu_Red_Point(self):
-        loc = [1243,21,1261,40]
-
-        Menu_img = self.ADB.ScreenHot.crop(loc)
-       # Menu_img.save('now_menu.png')
-
-        W_count = self.Get_PIL_Red_Point_Count(Menu_img)
-        if W_count == 0:
-            return  0
-        else:
-            return 1
 
     def Import_Sample_Image(self,Path):
         if os.path.isdir(Path) == False:
@@ -200,7 +206,7 @@ class LM:
             return 1
     
     def Check_Orange_Potion(self,Emu_Index):
-        org_loc = self.Image_CMP_new(temp_img = 'orange_potion_low.jpg', threshold = 0.99, Emu_Index =0)
+        org_loc = self.Image_CMP_new(temp_img = 'orange_potion_low.jpg', threshold = 0.99, Emu_Index=Emu_Index)
         print(org_loc)
         if org_loc == 0:
             print('Good')
@@ -282,10 +288,12 @@ class LM:
 
 
 if __name__ == '__main__':
-    obj = LM(Device_Name="127.0.0.1:5561",Sample_Path="./Data/Sample_img")
+    obj = LM(Device_Name="emulator-5556",Sample_Path="./Data/Sample_img")
+    obj.ADB.getWindow_Img_new(2)
     #obj.Image_CMP_new('orange_potion_low.jpg',0.9,0)
+    print(obj.Game_Screen)
     #obj.Check_Orange_Potion(0)
-    obj.Check_Red_Potion(3)
+    #obj.Check_Red_Potion(2)
     #print(obj.HP_Detect_Above_80_new(0))
 
 

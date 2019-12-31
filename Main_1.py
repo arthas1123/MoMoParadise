@@ -34,5 +34,5 @@ class Main():
                 pass
 
 if __name__ == "__main__":
-    obj = Main(Device_Index=2,Device_Name="127.0.0.1:5559") ##home 1-2
+    obj = Main(Device_Index=1,Device_Name="emulator-5556") ##home 1
     obj.start()
