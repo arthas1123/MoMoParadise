@@ -7,9 +7,9 @@ HP detection is completed, accuracy is high and could be combined with drag and 
 
 Working on....
 
-1. Area detection
+1. Area detection --> Completed!
 2. Auto refill supplies, such as potions and scrolls
 3. Auto sell junk items
-4. Instant teleport when attacked by other player
+4. Instant teleport when attacked by other player --> PVP Detection Completed!
 
 
