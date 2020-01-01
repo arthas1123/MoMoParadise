@@ -1,4 +1,3 @@
-
 from Module import ldconsole
 #import ldconsole
 import time
@@ -23,6 +22,7 @@ class LM(object):
        self.Screen_Now = None
        self.Stop_Cap = False
        self.Safe_Area = None
+       self.PVP_status = False
 
     
     def Import_Sample_Image(self,Path):
@@ -110,7 +110,31 @@ class LM(object):
         else:
             print('Not found')
             return 0
+    
+    @staticmethod
+    def Detect_Menu_Red_Point_fn(src_img: str):
+        target_img = cv.imread(src_img)[0:363,889:1262]
+        #im_HSV = cv.cvtColor(target_img, cv.COLOR_BGR2HSV)
+        
+        b_channel=0
+        g_channel=1
+        r_channel=2
 
+        r_query = 255
+        loc = np.where((target_img[:,:,r_channel] == r_query))
+
+        y_loc = loc[0]
+        x_loc = loc[1]
+        
+        dungeon_point = [51,164]
+        sign_in_point = [203,164]
+        mail_point = [203,306]
+        menu_point = [356,25]
+        
+        #print(loc)
+        print(sign_in_point[0] in x_loc)
+        print(sign_in_point[1] in y_loc)
+     
     @staticmethod
     def Detect_HP_Above_80_fn(src_img: str):
         # Lineage M HP : Top-Left = [74,17], Bot-Right = [264,29]
@@ -183,7 +207,7 @@ class LM(object):
             return 0 # gray
 
     @staticmethod
-    def Detect_PVP(src_img: str):
+    def Detect_PVP_fn(src_img: str):
         target_img = cv.imread(src_img)[515:574, 1162:1221]
         im_HSV = cv.cvtColor(target_img, cv.COLOR_BGR2HSV)
         # Red Mask
@@ -197,6 +221,36 @@ class LM(object):
             return True
         else:
             return False
+    
+    def Detect_PVP(self):
+        target_img = self.Screen_Now[515:574, 1162:1221]
+        im_HSV = cv.cvtColor(target_img, cv.COLOR_BGR2HSV)
+        # Red Mask
+        lower_red = np.array([0,43,150]) 
+        upper_red = np.array([10,255,255])
+        red_mask = cv.inRange(im_HSV, lower_red, upper_red)
+        # test if HP is correctly filtered
+        # res_img = cv.imwrite('res.jpg',red_mask)
+        if red_mask[25,25] and red_mask[25,36] and red_mask[35,31]:
+            print("PVP engaged")
+            self.PVP_status = True
+        else:
+            print('Not PVP')
+            self.PVP_status = False
+    
+    @staticmethod
+    def Check_Monster_fn(src_img: str):
+        tg = LM.Image_CMP_fn(src_img, temp_img = 'evil_liz_tg.jpg', threshold = 0.9)
+        if tg != 0:
+            print('Detected')
+
+    def Check_Monster(self,temp_img: str):
+        tg = self.Image_CMP_new(temp_img, threshold = 0.9)
+        if tg != 0:
+            print('Detected')
+
+    
+    
     @staticmethod
     def Check_Orange_Potion_fn(src_img: str):
         org_mil_loc = ldconsole.Dnconsole.find_pic(screen = src_img, template = 'orange_potion_low.jpg', threshold = 0.008)
@@ -288,11 +342,15 @@ if __name__ == '__main__':
     ### Test HP Detection
 
     ### Cap and Crop
-    #im1 = cv.imread('Emu_0_now.jpg')[309:330, 1124:1206]
-    #cv.imwrite('Safe_Area.jpg',im1)
+    #im1 = cv.imread('evil_liz_normal.jpg')[215:241, 20:119]
+    #cv.imwrite('evil_liz_tg.jpg',im1)
     #print(im1.shape)
     ### Cap and Crop
     
+    #LM.Check_Monster_fn('evil_liz_normal.jpg')
+    #LM.Check_Monster_fn('evil_liz_red.jpg')
+    #LM.Check_Monster_fn('emu_2_now.jpg')
+
     
     #im1 = cv.imread('safe_area.jpg')
     #lower_blue = np.array([100,0,0]) 
@@ -301,9 +359,12 @@ if __name__ == '__main__':
     #cv.imwrite('filtered_SA.jpg', blue_mask)
     
     ### Check self functions
-    obj = LM(2, "./Data/Sample_img")
-    obj.Keep_Emu_Img_Cap()
+    #obj = LM(2, "./Data/Sample_img")
+    #obj.Keep_Emu_Img_Cap()
     #time.sleep(0.5)
+    
+    #obj.Check_Monster('evil_liz_tg.jpg')
+    
     ### Check self functions
 
     ### Self Safe Area
@@ -324,6 +385,7 @@ if __name__ == '__main__':
     #obj = LM(2, "./Data/Sample_img")
     #obj.Keep_Emu_Img_Cap()
     #time.sleep(0.5)
+    #obj.Detect_PVP()
 
     ### Check Orange potion
     #res = obj.Check_Orange_Potion_low()
@@ -331,3 +393,6 @@ if __name__ == '__main__':
     
     #obj.Click_System_Btn('F4')
     #print(a.Screen_Now)
+
+
+    LM.Detect_Menu_Red_Point_fn('login_check.jpg')

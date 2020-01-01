@@ -14,10 +14,14 @@ class Main():
         while 1:
             try:
                 HP_now = self.LM.Detect_HP_Above_80()
-                
+                self.LM.Detect_PVP()
                 org_stock = self.LM.Check_Orange_Potion_low()
                 
-                if HP_now == 0:
+                if self.LM.PVP_status:
+                    self.LM.Click_System_Btn('F2')
+                    break
+                
+                elif HP_now == 0:
                     print('HP Low')
                     if org_stock == 0:
                         self.LM.Click_System_Btn('F5')

@@ -12,13 +12,15 @@ class Main():
         self.LM.Keep_Emu_Img_Cap()
         time.sleep(0.5)
         while 1:
-            
             try:
                 HP_now = self.LM.Detect_HP_Above_80()
-                
+                self.LM.Detect_PVP()
                 org_stock = self.LM.Check_Orange_Potion_low()
                 
-                if HP_now == 0:
+                if self.LM.PVP_status:
+                    self.LM.Click_System_Btn('F1')
+                
+                elif HP_now == 0:
                     print('HP Low')
                     if org_stock == 0:
                         self.LM.Click_System_Btn('F5')
@@ -84,5 +86,5 @@ class Main():
 if __name__ == "__main__":
     obj = Main(Device_Index=0)  ## home 1-2
     #obj = Main(Device_Index=2,Device_Name="127.0.0.1:5559",)  ## ASUS 1-2
-    #obj.start()
-    obj.start_dungeon()
+    obj.start()
+    #obj.start_dungeon()
