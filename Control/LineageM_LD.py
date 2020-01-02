@@ -43,13 +43,13 @@ class LM(object):
                 BGR_img = cv.cvtColor(ldconsole.Dnconsole.getWindow_Img_new(self.Index_Num), cv.COLOR_BGRA2BGR)
                 self.Screen_Now = BGR_img
                 time.sleep(1)
-            except KeyboardInterrupt:
-                break
+            except: ###keyboard interrupt removed
+                pass
             if self.Stop_Cap:
                 break
 
     def Keep_Emu_Img_Cap(self):
-        th = Thread(target=self.Get_Emu_Img_now,args= [])
+        th = Thread(target=self.Get_Emu_Img_now,args= [],daemon=True)
         th.start()
     
 
@@ -274,9 +274,9 @@ class LM(object):
         print(org_mil_loc)
         
     
-    def Check_Red_Potion_low(self,Emu_Index):
+    def Check_Red_Potion_low(self):
         red_loc = self.Image_CMP_new(temp_img = 'red_water_10.jpg', threshold = 0.99)
-        print(org_loc)
+        print(red_loc)
         if red_loc == 0:
             print('Good')
             return 0
@@ -382,8 +382,9 @@ if __name__ == '__main__':
     #a.Stop_Cap = True
     
     ### Check Emu Running
-    #obj = LM(2, "./Data/Sample_img")
-    #obj.Keep_Emu_Img_Cap()
+    obj = LM(2, "./Data/Sample_img")
+    obj.Keep_Emu_Img_Cap()
+
     #time.sleep(0.5)
     #obj.Detect_PVP()
 
@@ -393,6 +394,3 @@ if __name__ == '__main__':
     
     #obj.Click_System_Btn('F4')
     #print(a.Screen_Now)
-
-
-    LM.Detect_Menu_Red_Point_fn('login_check.jpg')
