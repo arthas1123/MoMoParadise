@@ -1,15 +1,15 @@
-from Module import ldconsole
-#import ldconsole
+#from Module import ldconsole
+import ldconsole
 import time
 import os
 from PIL import Image
 import imagehash
 import cv2 as cv
 import numpy as np
-# If global var stop_cap is needed
-#import globals
-from threading import Thread
-
+from threading import Thread, Event
+import signal
+import sys
+import time
 
 
 class LM(object):
@@ -54,8 +54,8 @@ class LM(object):
     
 
     @staticmethod
-    def Check_Safe_Area_fn(src_img, temp_img, threshold):
-        res = LM.Image_CMP_fn(im_src, temp_img, threshold)
+    def Check_Safe_Area_fn(src_img, threshold):
+        res = LM.Image_CMP_fn(src_img, temp_img = 'safe_area.jpg', threshold = 0.7)
         if res != 0:
             print('Safe Area')
         else:
@@ -78,7 +78,7 @@ class LM(object):
         
 
     @staticmethod
-    def Image_CMP_fn(src_img, temp_img, threshold):
+    def Image_CMP_fn(src_img: str, temp_img:str, threshold:float):
         img_src = cv.imread(src_img)
         #cv.imwrite('src1.jpg',img_src)
         #im1 = cv.cvtColor(img_src, cv.COLOR_BGRA2BGR)
@@ -257,6 +257,24 @@ class LM(object):
         if tg != 0:
             print('Detected')
 
+    @staticmethod
+    def Detect_Auto_Buy(src_img: str):
+        tg = LM.Image_CMP_fn(src_img, temp_img = 'auto_buy.jpg', threshold = 0.9)
+        if tg != 0:
+            print('Detected')
+    
+    @staticmethod
+    def Detect_Vendor_Red_Potion(src_img: str):
+        tg = LM.Image_CMP_fn(src_img, temp_img = 'vendor_red_potion.jpg', threshold = 0.9)
+        if tg != 0:
+            print('Detected')
+
+    @staticmethod
+    def Detect_Potion_Vendor(src_img: str):
+        tg = LM.Image_CMP_fn(src_img, temp_img = 'vendor_red_potion.jpg', threshold = 0.9)
+        if tg != 0:
+            print('Detected')
+
     
     
     @staticmethod
@@ -293,6 +311,10 @@ class LM(object):
             return 1
         else:
             print('Retry')
+    
+    
+
+
 
     def Click_System_Btn(self,name):
         Btn_Map = {}
@@ -318,6 +340,8 @@ class LM(object):
         Btn_Map['Menu_Sign_in'] = [1082, 185]
         Btn_Map['Menu_Mail_Box'] = [1006, 327]
         Btn_Map['Menu_Mail_Box_All_Taken'] = [1084, 662]
+        Btn_Map['Auto_Buy'] = [985, 647]
+
         
         if name not in Btn_Map:
             print("無此按鍵名稱：{}".format(name))
@@ -331,84 +355,31 @@ class LM(object):
 
 
 if __name__ == '__main__':
-    ### Remember ldconsole.Dnconsole.getWindow_Img_new will save images!!!!
+    #im1 = cv.imread('auto_test1.jpg')[481:541, 929:988]
+    #im2 = cv.imread('auto_test_2.jpg')[481:541, 929:988]
+    ### Red Mask
+    #lower_red = np.array([130,0,0]) 
+    #upper_red = np.array([180,255,255])
+    #red_mask = cv.inRange(im2, lower_red, upper_red)
+    #cv.imwrite('auto_on_filtered2.jpg', red_mask)
+    #res = cv.bitwise_and(im2,im2,mask = red_mask)
+    #cv.imwrite('auto_test2_filtered.jpg', res)
+    #LM.Image_CMP_fn(src_img = 'auto_test2_filtered.jpg', temp_img = 'auto_on_filtered_r.jpg', threshold = 0.9)
+    
+    ### Check self functions
+    #obj = LM(2, "./Data/Sample_img")
+    #obj.Keep_Emu_Img_Cap()
+    #time.sleep(0.5)
 
-
-    ### Test global var to stop thread
-    #globals.initialize()
-    #print(globals.stop_cap)
-    #obj = LM(1, "./Data/Sample_img")
-    #t1 = ldconsole.Dnconsole.Keep_Game_ScreenHot(1)
-    #time.sleep(5)
-    #globals.stop_cap = True
-    #print(globals.stop_cap)
-    ### Test global var to stop thread
-
-    ### Test HP Detection
-    #print(LM.HPDetect_Above_80('Emu_0_now.jpg'))
-    #im1 = ldconsole.Dnconsole.getWindow_Img_new(1)
-    ### Test HP Detection
+    #print('Wait for pess A')
+    #time.sleep(20)
+    #LM.Check_Safe_Area_fn(src_img = 'village.jpg', threshold = 0.7)
 
     ### Cap and Crop
     #im1 = cv.imread('conversation1.jpg')[590:650, 1170:1224]
     #cv.imwrite('dialog_arrow.jpg',im1)
     #print(im1.shape)
     ### Cap and Crop
-    
-    #im1 = cv.imread('auto_test1.jpg')[481:541, 929:988]
-    #print(im1)
-    #cv.imwrite('auto_on.jpg',im1)
 
-    
-    #im1 = cv.imread('safe_area.jpg')
-    ### Blue Mask
-    #lower_blue = np.array([100,0,0]) 
-    #upper_blue = np.array([140,255,255])
-    #blue_mask = cv.inRange(im1, lower_blue, upper_blue)
-
-    ### Red Mask
-    #lower_red = np.array([150,0,0]) 
-    #upper_red = np.array([180,255,255])
-    #red_mask = cv.inRange(im1, lower_red, upper_red)
-    #cv.imwrite('auto_on_filtered.jpg', red_mask)
-    #im2 = cv.cvtColor('auto_on_filtered.jpg',cv.COLOR_HSV2RGB)
-    #cv.imwrite('auto_HSV.jpg', im2)
-
-    #LM.Image_CMP_fn(src_img = '', temp_img = 'auto_on_filtered.jpg', 0.9)
-    
-    ### Check self functions
-    #obj = LM(2, "./Data/Sample_img")
-    #obj.Keep_Emu_Img_Cap()
-    #time.sleep(0.5)
-    
-    #obj.Check_Monster('evil_liz_tg.jpg')
-    
-    ### Check self functions
-
-    ### Self Safe Area
-    #obj.Check_Safe_Area()
-    #print(obj.Safe_Area)
-
-    
-
-    ### Check item: 30 org = 0.00874, 20 org = 0.00793 , 10 org = 0.00109, thus for 10 org potions, threshold could be 0.008
-    #LM.Check_Orange_Potion_zero('Emu_1_now.jpg')
-    #ldconsole.Dnconsole.getWindow_Img_new(1)
-    #print(LM.Check_Orange_Potion('org_potion_10.jpg'))
-    #LM.Detect_PVP('PVP.jpg')
-    #time.sleep(5)
-    #a.Stop_Cap = True
-    
-    ### Check Emu Running
-    #obj = LM(2, "./Data/Sample_img")
-    #obj.Keep_Emu_Img_Cap()
-
-    #time.sleep(0.5)
-    #obj.Detect_PVP()
-
-    ### Check Orange potion
-    #res = obj.Check_Orange_Potion_low()
-    #print(res)
-    
-    #obj.Click_System_Btn('F4')
-    print(a.Screen_Now)
+    LM.Detect_Auto_Buy('Emu_0_now.jpg')
+    LM.Detect_Vendor_Red_Potion('Emu_0_now.jpg')

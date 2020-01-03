@@ -1,12 +1,17 @@
 import cv2
 import numpy as np
 from matplotlib import pyplot as plt
+from Control import LineageM_LD
+from Module import ldconsole
 
-img = cv2.imread('red_potion_lower.jpg')
-#img = cv2.imread('test.jpg')
+#obj = LineageM_LD.LM(2, "./Data/Sample_img")
+#obj.Keep_Emu_Img_Cap()
+
+#img = cv2.imread('village.jpg')
+img = cv2.imread('Emu_0_now.jpg')
 img.astype(np.uint8)
 img2 = img.copy()
-template = cv2.cv2.imread('red_water_10.jpg')
+template = cv2.cv2.imread('merchant_logo.jpg')
 template.astype(np.uint8)
 #cv2.imwrite('res1.png',template)
 
@@ -27,12 +32,16 @@ plt.title('Detected Point'), plt.xticks([]), plt.yticks([])
 plt.suptitle('cv2.TM_CCOEFF')
 #plt.show()
 
-threshold = 0.8
+threshold = 0.9
 loc = np.where( res >= threshold)
-print(len(loc))
-print(loc[0])
-print(loc[1])
-print(res[602][925])
+#print(len(loc))
+#print(loc[0])
+#print(loc[1])
+
 for pt in zip(*loc[::-1]):
-    cv2.rectangle(img, pt, (pt[0] + w, pt[1] + h), (0,0,255), 2)
+    #print(pt)
+    cv2.rectangle(img, (pt[0] , pt[1]), (pt[0] + w, pt[1] + h), (0,0,255), 2)
 cv2.imwrite('res.png',img)
+
+for pt in zip(*loc[::-1]):
+    ldconsole.Dnconsole.touch(index = 0, x= pt[0], y=pt[1])
