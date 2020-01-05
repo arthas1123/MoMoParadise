@@ -1,5 +1,5 @@
-#from Module import ldconsole
-import ldconsole
+from Module import ldconsole
+#import ldconsole
 import time
 import os
 from PIL import Image
@@ -118,6 +118,56 @@ class LM(object):
         else:
             print('Not found')
             return 0
+    
+    @staticmethod
+    def Image_CMP_multi_fn(src_img: str, temp_img:str, threshold:float):
+        img_src = cv.imread(src_img)
+        #cv.imwrite('src1.jpg',img_src)
+        #im1 = cv.cvtColor(img_src, cv.COLOR_BGRA2BGR)
+        #cv.imwrite('src2.jpg',img_src)
+        template = cv.imread(temp_img)
+        h, w = template.shape[0], template.shape[1]
+        #print(template.shape)
+        
+        res = cv.matchTemplate(img_src, template, cv.TM_CCOEFF_NORMED)
+        min_val, max_val, min_loc, max_loc = cv.minMaxLoc(res)
+        loc = np.where( res >= threshold)
+        ### convert to 2D array
+        loc_arr1 = list(zip(loc[1], loc[0]))
+        loc2 = sorted(loc_arr1)
+        
+        ref = 0
+        out = []
+        for x in loc2:
+            if x[0]-ref > w:
+                ref = x[0]
+                out.append((x[0],x[1]))
+        return out
+
+    def Image_CMP_multi(self, temp_img:str, threshold:float):
+        img_src = self.Screen_Now
+        #cv.imwrite('src1.jpg',img_src)
+        #im1 = cv.cvtColor(img_src, cv.COLOR_BGRA2BGR)
+        #cv.imwrite('src2.jpg',img_src)
+        template = cv.imread(temp_img)
+        h, w = template.shape[0], template.shape[1]
+        #print(template.shape)
+        
+        res = cv.matchTemplate(img_src, template, cv.TM_CCOEFF_NORMED)
+        min_val, max_val, min_loc, max_loc = cv.minMaxLoc(res)
+        loc = np.where( res >= threshold)
+        ### convert to 2D array
+        loc_arr1 = list(zip(loc[1], loc[0]))
+        loc2 = sorted(loc_arr1)
+        
+        ref = 0
+        out = []
+        for x in loc2:
+            if x[0]-ref > w:
+                ref = x[0]
+                out.append((x[0],x[1]))
+        return out
+ 
     
     @staticmethod
     def Detect_Menu_Red_Point_fn(src_img: str):
@@ -246,6 +296,15 @@ class LM(object):
             print('Not PVP')
             self.PVP_status = False
     
+    def Check_Mission_Complete(self):
+        tg = self.Image_CMP_new('mission_complete.jpg', threshold = 0.9)
+        if tg != 0:
+            print('Detected')
+            return True
+        else:
+            return False
+
+
     @staticmethod
     def Check_Monster_fn(src_img: str):
         tg = LM.Image_CMP_fn(src_img, temp_img = 'evil_liz_tg.jpg', threshold = 0.9)
@@ -258,24 +317,68 @@ class LM(object):
             print('Detected')
 
     @staticmethod
-    def Detect_Auto_Buy(src_img: str):
+    def Detect_Auto_Buy_fn(src_img: str):
         tg = LM.Image_CMP_fn(src_img, temp_img = 'auto_buy.jpg', threshold = 0.9)
         if tg != 0:
+            print(tg)
             print('Detected')
+            return True
+
+    def Detect_Auto_Buy(self):
+        tg_loc = self.Image_CMP_new(temp_img = 'auto_buy.jpg', threshold = 0.9)
+        if tg_loc != 0:
+            return tg_loc
+        else:
+            return 0
+    
     
     @staticmethod
-    def Detect_Vendor_Red_Potion(src_img: str):
+    def Detect_Vendor_Red_Potion_fn(src_img: str):
         tg = LM.Image_CMP_fn(src_img, temp_img = 'vendor_red_potion.jpg', threshold = 0.9)
         if tg != 0:
+            #print(tg)
             print('Detected')
+            return True
 
-    @staticmethod
-    def Detect_Potion_Vendor(src_img: str):
-        tg = LM.Image_CMP_fn(src_img, temp_img = 'vendor_red_potion.jpg', threshold = 0.9)
-        if tg != 0:
-            print('Detected')
+    def Detect_Vendor_Red_Potion(self):
+        tg_loc = self.Image_CMP_new(temp_img = 'vendor_red_potion.jpg', threshold = 0.9)
+        if tg_loc != 0:
+            return tg_loc
+        else:
+            return 0
 
     
+    ### Still Working on Finding the Correct Vendor
+    @staticmethod
+    def Detect_Potion_Vendor_fn(src_img: str):
+        tg = LM.Image_CMP_fn(src_img, temp_img = 'merchant_logo.jpg', threshold = 0.9)
+        if tg != 0:
+            print(tg)
+            print('Detected')
+
+    def Detect_Potion_Vendor(self,counts: int):
+        locs = self.Image_CMP_multi(temp_img = 'merchant_logo.jpg', threshold = 0.9)
+        print(locs)
+        if len(locs) == 0:
+            print("Not Found...")
+        else:    
+            for i in range(counts):
+                print('Trying {} round'.format(i))
+                for loc in locs:
+                    ldconsole.Dnconsole.touch(self.Index_Num, loc[0], loc[1])
+                    time.sleep(0.5)
+                    cond0 = self.Detect_Vendor_Red_Potion()
+                    #print(cond0)
+                    time.sleep(1)
+                    cond1 = self.Detect_Auto_Buy()
+                    #print(cond1)
+                    if cond0 != 0 and cond1 != 0:
+                        print('Found Potion Vendor!')
+                        break
+                    else:
+                        print('Not this one!')
+                        self.Click_System_Btn('Exit_Vendor')
+
     
     @staticmethod
     def Check_Orange_Potion_fn(src_img: str):
@@ -333,6 +436,7 @@ class LM(object):
         Btn_Map['Attack'] = [1104, 520]
         Btn_Map['Store'] = [935, 45]
         Btn_Map['Item_Box'] = [1009, 45]
+        Btn_Map['Dungeon'] = [940, 163]
         Btn_Map['Skill'] = [1080, 45]
         Btn_Map['Mission'] = [1161, 45]
         Btn_Map['Mission_Close_Menu'] = [1237, 45]
@@ -340,7 +444,10 @@ class LM(object):
         Btn_Map['Menu_Sign_in'] = [1082, 185]
         Btn_Map['Menu_Mail_Box'] = [1006, 327]
         Btn_Map['Menu_Mail_Box_All_Taken'] = [1084, 662]
-        Btn_Map['Auto_Buy'] = [985, 647]
+        Btn_Map['Auto_Buy'] = [985, 647] ### use in village
+        Btn_Map['Buy_All'] = [1140, 645] ### use in village
+        Btn_Map['Confirm'] = [752, 588] ### use in village
+        Btn_Map['Exit_Vendor'] = [1230, 40] ### use in village
 
         
         if name not in Btn_Map:
@@ -367,7 +474,7 @@ if __name__ == '__main__':
     #LM.Image_CMP_fn(src_img = 'auto_test2_filtered.jpg', temp_img = 'auto_on_filtered_r.jpg', threshold = 0.9)
     
     ### Check self functions
-    #obj = LM(2, "./Data/Sample_img")
+    #obj = LM(1, "./Data/Sample_img")
     #obj.Keep_Emu_Img_Cap()
     #time.sleep(0.5)
 
@@ -381,5 +488,18 @@ if __name__ == '__main__':
     #print(im1.shape)
     ### Cap and Crop
 
-    LM.Detect_Auto_Buy('Emu_0_now.jpg')
-    LM.Detect_Vendor_Red_Potion('Emu_0_now.jpg')
+    #LM.Detect_Auto_Buy('Emu_0_now.jpg')
+    #LM.Detect_Vendor_Red_Potion_fn('Emu_0_now.jpg')
+
+    #LM.Detect_Potion_Vendor_fn('Emu_0_now.jpg')
+    #LM.Image_CMP_multi(src_img = 'village.jpg', temp_img = 'merchant_logo.jpg', threshold = 0.9)
+    #obj = LM(1, "./Data/Sample_img")
+    #obj.Keep_Emu_Img_Cap()
+    #time.sleep(1)
+    #loc = obj.Image_CMP_multi(temp_img = 'merchant_logo.jpg', threshold = 0.9)
+    #ldconsole.Dnconsole.touch(1,loc[0][0],loc[0][1])
+    #LM.Detect_Vendor_Red_Potion_fn('Emu_1_now.jpg')
+    LM.Detect_Auto_Buy_fn('Emu_1_now.jpg')
+    #ldconsole.Dnconsole.touch(1,929,630)
+    #ldconsole.Dnconsole.touch(1,,630)
+    #obj = LM(1,"./Data/Sample_img")

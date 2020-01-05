@@ -7,7 +7,7 @@ import cv2 as cv
 import subprocess
 import win32gui, win32ui, win32con, win32api
 import numpy as np
-#import globals
+
 
 class DnPlayer(object):
     def __init__(self, info: list):
@@ -97,8 +97,6 @@ class Dnconsole:
     console = 'D:\\Changzhi\\LDPlayer\\ldconsole.exe '
     ld = 'D:\\Changzhi\\LDPlayer\\ld.exe '
     share_path = 'C:\\Users\\Alex\\Documents\\LDPlayer\\Pictures'
-    def __init__(self):
-        self.ScreenHot = None
      
     @staticmethod
     def get_list():
@@ -437,24 +435,6 @@ class Dnconsole:
     # 回傳圖片
         cv.imwrite('Emu_'+ str(Emu_Index) + '_now.jpg',img)
         return img
-    
-    @staticmethod
-    def Keep_Game_ScreenHot(Emu_Index: int):
-        th = Thread(target=Dnconsole.Keep_Game_ScreenHot_fn,args=[Emu_Index])
-        th.start()
-    
-    @staticmethod
-    def Keep_Game_ScreenHot_fn(Emu_Index: int):
-        while 1:
-            globals.stop_cap
-            try:
-                Dnconsole.getWindow_Img_new(Emu_Index)
-                time.sleep(1)
-            except KeyboardInterrupt:
-                break
-            if globals.stop_cap:
-                break
-
 
 if __name__ == "__main__":
     #print(Dnconsole.console)
@@ -467,7 +447,6 @@ if __name__ == "__main__":
     
     #print("killed")
     #print(res.shape)
-    #a.Keep_Game_ScreenHot_fn(1)
     #a.screen_now = a.getWindow_Img_new(1)
     #print(a.screen_now)
 
