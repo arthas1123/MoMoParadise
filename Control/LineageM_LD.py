@@ -266,7 +266,7 @@ class LM(object):
 
     def Check_Orange_Potion_low(self):
         org_loc = self.Image_CMP_new(temp_img = 'orange_potion_low.jpg', threshold = 0.99)
-        print(org_loc)
+        #print(org_loc)
         if org_loc == 0:
             print('Good')
             return 0
@@ -284,11 +284,12 @@ class LM(object):
     
     def Check_Red_Potion_low(self):
         red_loc = self.Image_CMP_new(temp_img = 'red_water_10.jpg', threshold = 0.99)
-        print(red_loc)
+        red_loc_0 = self.Image_CMP_new(temp_img = 'red_water_0.jpg', threshold = 0.99)
+        #print(red_loc_0)
         if red_loc == 0:
             print('Good')
             return 0
-        elif red_loc[0] in range(921,987):
+        elif red_loc[0] in range(921,987) or red_loc_0[0] in range(921,987):
             print('Low')
             return 1
         else:
