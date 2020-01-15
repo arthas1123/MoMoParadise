@@ -1,5 +1,5 @@
-from Module import ldconsole
-#import ldconsole
+#from Module import ldconsole
+import ldconsole
 import time
 import os
 from PIL import Image
@@ -216,30 +216,44 @@ class LM(object):
 
     @staticmethod
     def Detect_PVP_fn(src_img: str):
-        target_img = cv.imread(src_img)[515:574, 1162:1221]
-        im_HSV = cv.cvtColor(target_img, cv.COLOR_BGR2HSV)
+        target_img = cv.imread(src_img)
+        target1_img = target_img[515:574, 1162:1221]
+        target2_img = target_img[470:555, 1045:1125]
+        im1_HSV = cv.cvtColor(target1_img, cv.COLOR_BGR2HSV)
+        im2_HSV = cv.cvtColor(target2_img, cv.COLOR_BGR2HSV)
         # Red Mask
         lower_red = np.array([0,43,150]) 
         upper_red = np.array([10,255,255])
-        red_mask = cv.inRange(im_HSV, lower_red, upper_red)
+        red_mask1 = cv.inRange(im1_HSV, lower_red, upper_red)
+        red_mask2 = cv.inRange(im2_HSV, lower_red, upper_red)
         # test if HP is correctly filtered
-        # res_img = cv.imwrite('res.jpg',red_mask)
-        if red_mask[25,25] and red_mask[25,36] and red_mask[35,31]:
+        #res1_img = cv.imwrite('res1.jpg',red_mask1)
+        #res2_img = cv.imwrite('res2.jpg',red_mask2)
+        red_icon1 = red_mask1[25,25] and red_mask1[25,36] and red_mask1[35,31]
+        red_icon2 = red_mask2[43,43] and red_mask2[24,63] and red_mask2[57,29]
+        #print(red_icon2 and red_icon1)
+
+
+        if red_icon1 and red_icon2:
             print("PVP engaged")
             return True
         else:
             return False
     
     def Detect_PVP(self):
-        target_img = self.Screen_Now[515:574, 1162:1221]
-        im_HSV = cv.cvtColor(target_img, cv.COLOR_BGR2HSV)
+        target1_img = self.Screen_Now[515:574, 1162:1221]
+        target2_img = self.Screen_Now[470:555, 1045:1125]
+        im1_HSV = cv.cvtColor(target1_img, cv.COLOR_BGR2HSV)
+        im2_HSV = cv.cvtColor(target2_img, cv.COLOR_BGR2HSV)
         # Red Mask
         lower_red = np.array([0,43,150]) 
         upper_red = np.array([10,255,255])
-        red_mask = cv.inRange(im_HSV, lower_red, upper_red)
-        # test if HP is correctly filtered
-        # res_img = cv.imwrite('res.jpg',red_mask)
-        if red_mask[25,25] and red_mask[25,36] and red_mask[35,31]:
+        red_mask1 = cv.inRange(im1_HSV, lower_red, upper_red)
+        red_mask2 = cv.inRange(im2_HSV, lower_red, upper_red)
+        red_icon1 = red_mask1[25,25] and red_mask1[25,36] and red_mask1[35,31]
+        red_icon2 = red_mask2[43,43] and red_mask2[24,63] and red_mask2[57,29]
+
+        if red_icon1 and red_icon2:
             print("PVP engaged")
             self.PVP_status = True
         else:
@@ -266,11 +280,12 @@ class LM(object):
 
     def Check_Orange_Potion_low(self):
         org_loc = self.Image_CMP_new(temp_img = 'orange_potion_low.jpg', threshold = 0.99)
+        org_loc_0 = self.Image_CMP_new(temp_img = 'orange_potion_zero.jpg', threshold = 0.99)
         #print(org_loc)
         if org_loc == 0:
             print('Good')
             return 0
-        elif org_loc[0] in range(921,987):
+        elif org_loc[0] in range(921,987) or org_loc_0[0] in range(921,987):
             print('Low')
             return 1
         else:
@@ -334,21 +349,13 @@ class LM(object):
 if __name__ == '__main__':
     ### Remember ldconsole.Dnconsole.getWindow_Img_new will save images!!!!
 
-
-    ### Test global var to stop thread
-    #globals.initialize()
-    #print(globals.stop_cap)
-    #obj = LM(1, "./Data/Sample_img")
-    #t1 = ldconsole.Dnconsole.Keep_Game_ScreenHot(1)
-    #time.sleep(5)
-    #globals.stop_cap = True
-    #print(globals.stop_cap)
-    ### Test global var to stop thread
-
     ### Test HP Detection
     #print(LM.HPDetect_Above_80('Emu_0_now.jpg'))
     #im1 = ldconsole.Dnconsole.getWindow_Img_new(1)
     ### Test HP Detection
+
+    obj = LM(Index_Num = 0, Sample_Path = './')
+    obj.Detect_PVP_fn(src_img = 'Emu_0_now.jpg')
 
     ### Cap and Crop
     #im1 = cv.imread('conversation1.jpg')[590:650, 1170:1224]
@@ -412,4 +419,4 @@ if __name__ == '__main__':
     #print(res)
     
     #obj.Click_System_Btn('F4')
-    print(a.Screen_Now)
+    #print(a.Screen_Now)
