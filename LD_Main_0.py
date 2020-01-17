@@ -122,6 +122,6 @@ class Main():
 if __name__ == "__main__":
     obj = Main(Device_Index=0)  ## home 1-2
     #obj = Main(Device_Index=2,Device_Name="127.0.0.1:5559",)  ## ASUS 1-2
-    obj.start()
+    #obj.start()
     #obj.start_dungeon()
-    #obj.combat_red_potion()
+    obj.combat_red_potion()

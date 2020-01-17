@@ -77,22 +77,24 @@ class Main():
             except:
                 pass
 
-    def start_red(self):
+    def combat_red_potion(self):
         self.LM.Keep_Emu_Img_Cap()
-        time.sleep(0.5)
+        time.sleep(1)
         while 1:
             try:
                 HP_now = self.LM.Detect_HP_Above_80()
                 self.LM.Detect_PVP()
-                red_stock = self.LM.Check_Red_Potion_low()
+                #org_stock = self.LM.Check_Orange_Potion_low()
+                red_potion = self.LM.Check_Red_Potion_low()
                 
                 if self.LM.PVP_status:
-                    self.LM.Click_System_Btn('F2')
-                    break
+                    im1 = cv.imwrite('PVP_{}_engaged.jpg'.format(self.LM.Index_Num), self.LM.Screen_Now)
+                    self.LM.Click_System_Btn('F1')
+                    
                 
                 elif HP_now == 0:
                     print('HP Low')
-                    if red_stock == 0:
+                    if red_potion == 0:
                         self.LM.Click_System_Btn('F5')
                         time.sleep(0.5)
                     else:
@@ -105,15 +107,16 @@ class Main():
 
                 else:
                     print("HP High")
-                    time.sleep(0.5)
-                
-                time.sleep(0.5)
+                     
+                time.sleep(0.2)
 
             except:
                 pass
+
 if __name__ == "__main__":
     obj = Main(Device_Index=2)  ## home 1-2
     #obj = Main(Device_Index=2,Device_Name="127.0.0.1:5559",)  ## ASUS 1-2
-    obj.LM.Keep_Emu_Img_Cap()
-    keyboard.wait('ESC')
+    #obj.LM.Keep_Emu_Img_Cap()
+    #keyboard.wait('ESC')
+    obj.combat_red_potion()
     

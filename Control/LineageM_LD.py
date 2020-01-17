@@ -1,5 +1,5 @@
-#from Module import ldconsole
-import ldconsole
+from Module import ldconsole
+#import ldconsole
 import time
 import os
 from PIL import Image
@@ -296,16 +296,38 @@ class LM(object):
         org_mil_loc = ldconsole.Dnconsole.find_pic(screen = src_img, template = 'orange_potion_zero.jpg', threshold = 0.008)
         print(org_mil_loc)
         
+
+    @staticmethod
+    def Check_Red_Potion_zero(src_img: str):
+        red_loc = LM.Image_CMP_fn(src_img = src_img, temp_img = 'red_water_10.jpg', threshold = 0.99)
+        red_loc_0 = LM.Image_CMP_fn(src_img = src_img, temp_img = 'red_water_0.jpg', threshold = 0.99)
+        #print(red_loc)
+        #print(red_loc_0)
+        if red_loc == 0:
+            if red_loc_0 == 0:
+                print('Good')
+                return 0
+            elif red_loc_0[0] in range(921,987):
+                print('zero')
+                return 1
+        elif red_loc[0] in range(921,987):
+            print('low')
+            return 1
+        else:
+            print('Retry')
     
     def Check_Red_Potion_low(self):
         red_loc = self.Image_CMP_new(temp_img = 'red_water_10.jpg', threshold = 0.99)
         red_loc_0 = self.Image_CMP_new(temp_img = 'red_water_0.jpg', threshold = 0.99)
-        #print(red_loc_0)
         if red_loc == 0:
-            print('Good')
-            return 0
-        elif red_loc[0] in range(921,987) or red_loc_0[0] in range(921,987):
-            print('Low')
+            if red_loc_0 == 0:
+                print('Good')
+                return 0
+            elif red_loc_0[0] in range(921,987):
+                print('zero')
+                return 1
+        elif red_loc[0] in range(921,987):
+            print('low')
             return 1
         else:
             print('Retry')
@@ -354,8 +376,8 @@ if __name__ == '__main__':
     #im1 = ldconsole.Dnconsole.getWindow_Img_new(1)
     ### Test HP Detection
 
-    obj = LM(Index_Num = 0, Sample_Path = './')
-    obj.Detect_PVP_fn(src_img = 'Emu_0_now.jpg')
+    obj = LM(Index_Num = 3, Sample_Path = './')
+    obj.Check_Red_Potion_zero('Emu_3_now.jpg')
 
     ### Cap and Crop
     #im1 = cv.imread('conversation1.jpg')[590:650, 1170:1224]

@@ -382,8 +382,8 @@ class Dnconsole:
     def getWindow_W_H(hwnd):
     # 取得目標視窗的大小
         left, top, right, bot = win32gui.GetWindowRect(hwnd)
-        width = right - left #+ 280
-        height = bot - top #+ 150
+        width = right - left + 280
+        height = bot - top + 150
         return (left, top, width, height)
 
 
